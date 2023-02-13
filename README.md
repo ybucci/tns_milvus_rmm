@@ -24,7 +24,7 @@ pip3 install ansible pywinrm
 git clone https://github.com/ybucci/tns_milvus_rmm.git
 ```
 
-- Configure **inventory/cliente1/hosts.ini** with your servers
+- Configure **inventory/cliente1/hosts.ini** with your servers and credentials
 ####
 - Run the playbook in your Ansible Machine
 
