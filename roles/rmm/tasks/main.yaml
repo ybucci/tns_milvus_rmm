@@ -1,0 +1,48 @@
+- name: Check if Advanced Monitoring Agent Service already exist
+  ansible.windows.win_service_info:
+    name: "Advanced Monitoring Agent"
+  register: rmm_service
+
+- name: Get Guid RMM
+  ansible.windows.win_powershell:
+    script: |
+      $check_installed = Get-WMIObject win32_product | Where { $_.Name -like "Agent" } | % { $_.IdentifyingNumber }
+      if ($check_installed -ne $null) {
+      Write-Output $check_installed
+      }
+      else {
+      Write-Output "not_installed"
+      }
+  register: guid_rmm
+
+- ansible.builtin.set_fact:
+    agent_guid: "{{ guid_rmm.output[0] }}"
+
+- name: Uninstall Agent
+  ansible.windows.win_package:
+    product_id: "{{ agent_guid }}"
+    state: absent
+    arguments: /qn
+  register: uninstall
+  when: not rmm_service.exists and agent_guid != "not_installed" 
+
+- name: Wait 10 seconds to continue
+  ansible.builtin.pause:
+    seconds: 10
+  when: uninstall.changed
+
+- name: Install RMM
+  ansible.windows.win_package:
+    path: "{{ rmm.path }}"
+    state: present
+    arguments: /qn    
+  when: not rmm_service.exists
+
+- name: Wait RMM Service be ready
+  ansible.windows.win_service:
+    name: "Advanced Monitoring Agent"
+    state: started
+  retries: 15
+  delay: 10
+  register: rmm_service
+  until: rmm_service.exists

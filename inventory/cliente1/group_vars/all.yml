@@ -1,0 +1,8 @@
+
+milvus:
+  enabled: true
+  path: '\\node1\Public\saBMv0acDFs_114741_Milvus.Customizado.msi'
+
+rmm:
+  enabled: true
+  path: '\\node1\Public\agent.msi'

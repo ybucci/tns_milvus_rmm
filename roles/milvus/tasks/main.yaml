@@ -1,0 +1,25 @@
+- name: Check if Milvus Service already exist
+  ansible.windows.win_service_info:
+    name: Milvus.Helpdesk.Agente.Service
+  register: milvus_service
+
+- name: Install Milvus
+  ansible.windows.win_package:
+    path: "{{ milvus.path }}"
+    state: present
+    arguments: /qn
+  become: yes   
+  when: not milvus_service.exists
+
+- debug:
+    msg: "Milvus alredy installed, nothing to do"
+  when: milvus_service.exists
+
+- name: Wait Milvus Service be ready
+  ansible.windows.win_service:
+    name: Milvus.Helpdesk.Agente.Service
+    state: started
+  retries: 15
+  delay: 10
+  register: milvus_service
+  until: milvus_service.exists

@@ -1,0 +1,6 @@
+- name: "TNS | Install default packages"
+  hosts: all
+  gather_facts: no
+  roles:
+    - { role: milvus, tags: [ 'milvus' ], when: milvus.enabled }
+    - { role: rmm, tags: [ 'rmm' ], when: rmm.enabled }
